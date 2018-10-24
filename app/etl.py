@@ -39,7 +39,7 @@ def get_filmweb_url_of(film_title):
     soup = BeautifulSoup(page.content, 'html.parser')
     film_url_box = soup.find("a", attrs={"class": "filmPreview__link"})
     result = re.search('href=\"(.*)\"><h3 class', str(film_url_box))
-    return ("https://www.filmweb.pl/" + result.group(1))
+    return ("https://www.filmweb.pl" + result.group(1))
 
 
 def data_scrapping(film_url):
