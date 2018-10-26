@@ -15,7 +15,7 @@ if __name__ == '__main__':
     print(db_verion)
 
     #test get data from movies
-    movies = select_all_films(conn)
+    movies = select_all_movies(conn)
     print(movies)
 
     close_database_connection(conn)
@@ -33,7 +33,7 @@ def clean_data():
     return
 
 def extract():
-    data_scrapping(get_filmweb_url_of(gui.input_film_title.get()))
+    data_scrapping(get_filmweb_url_of(gui.input_movie_title.get()))
     gui.button_transform.config(state=NORMAL)
     gui.etl_bar_e.config(fg="red")
     gui.print_msg_in_message_box("Data Extracted")
@@ -47,11 +47,11 @@ def load():
     gui.etl_bar_l.config(fg="red")
     gui.print_msg_in_message_box("Data Loaded")
 
-def get_filmweb_url_of(film_title):
-    page = get_page(("https://www.filmweb.pl/search?q=" + film_title))
+def get_filmweb_url_of(movie_title):
+    page = get_page(("https://www.filmweb.pl/search?q=" + movie_title))
     soup = BeautifulSoup(page.content, 'html.parser')
-    film_url_box = soup.find("a", attrs={"class": "filmPreview__link"})
-    result = re.search('href=\"(.*)\"><h3 class', str(film_url_box))
+    movie_url_box = soup.find("a", attrs={"class": "filmPreview__link"})
+    result = re.search('href=\"(.*)\"><h3 class', str(movie_url_box))
     return ("https://www.filmweb.pl" + result.group(1))
 
 
@@ -62,16 +62,16 @@ def data_scrapping(film_url):
     head = list(html.children)[0]
     body = list(html.children)[1]
 
-    film_title = list(head.children)[2].get_text().split("(",1)[0]
-    print(film_title)
+    movie_title = list(head.children)[2].get_text().split("(",1)[0]
+    print(movie_title)
 
     result = re.search('\((.*)\)', list(head.children)[2].get_text())
-    film_prod_yead = result.group(1)
-    print(film_prod_yead)
+    movie_prod_year = result.group(1)
+    print(movie_prod_year)
 
-    film_score_box = soup.find("span", attrs={"itemprop": "ratingValue"})
-    film_score = film_score_box.text.strip()
-    print(film_score)
+    movie_score_box = soup.find("span", attrs={"itemprop": "ratingValue"})
+    movie_score = movie_score_box.text.strip()
+    print(movie_score)
     
 
 def get_page(url):
