@@ -14,9 +14,9 @@ if __name__ == '__main__':
     db_verion = select_database_version(conn)
     print(db_verion)
 
-    #test get data from films
-    films = select_all_films(conn)
-    print(films)
+    #test get data from movies
+    movies = select_all_films(conn)
+    print(movies)
 
     close_database_connection(conn)
 

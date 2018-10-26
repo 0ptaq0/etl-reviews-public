@@ -49,7 +49,7 @@ def select_database_version(conn):
 
 def select_all_films(conn):
     cur = conn.cursor()
-    cur.execute("SELECT * FROM films")
+    cur.execute("SELECT * FROM movies")
     result = cur.fetchall()
     cur.close()
     return result
