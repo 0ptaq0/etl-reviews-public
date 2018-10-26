@@ -6,6 +6,19 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import gui
+from db_connection import *
+
+if __name__ == '__main__':
+    conn = connect_to_database_and_get_connection()
+    #test get database version
+    db_verion = select_database_version(conn)
+    print(db_verion)
+
+    #test get data from films
+    films = select_all_films(conn)
+    print(films)
+
+    close_database_connection(conn)
 
 reload(sys)
 sys.setdefaultencoding('utf-8')

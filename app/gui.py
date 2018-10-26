@@ -10,7 +10,6 @@ import etl
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-
 def print_msg_in_message_box(msg):
     msg_box_value.set("Info: " + msg)
 
