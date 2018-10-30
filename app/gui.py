@@ -10,12 +10,11 @@ import etl
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-
 def print_msg_in_message_box(msg):
     msg_box_value.set("Info: " + msg)
 
 main_window = Tk()
-main_window.title("ETL Film Reviews")
+main_window.title("ETL Movie Reviews")
 
 msg_box_value = StringVar(main_window,value="Info: ")
 
@@ -31,11 +30,11 @@ etl_bar_t.grid(row=0,column=1)
 etl_bar_l = Label(frame_ETL_bar,text="L", font=("Helvetica", 24))
 etl_bar_l.grid(row=0,column=2)
 
-title_bar = Label(main_window,text="Film Reviews", font=("Helvetica", 12))
+title_bar = Label(main_window,text="movie Reviews", font=("Helvetica", 12))
 title_bar.grid(row=1)
 
-input_film_title = Entry(main_window)
-input_film_title.grid(row=2)
+input_movie_title = Entry(main_window)
+input_movie_title.grid(row=2)
 
 frame_ETL_buttons = Frame(main_window)
 frame_ETL_buttons.grid(row=3)
