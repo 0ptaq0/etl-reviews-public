@@ -40,6 +40,24 @@ def close_database_connection(conn):
             conn.close()
             print('Connection to the PostgreSQL database closed')
 
+def create_table(conn):
+    try:
+        cur = conn.cursor()
+        cur.execute('CREATE TABLE movies (id serial primary key, title VARCHAR(40) not null, filmweb_score integer, rotten_tomatoes_score integer, imdb_score integer);')
+        cur.close()
+        conn.commit()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+
+def insert_movie(conn, title, filmweb_score, rotten_tomatoes_score, imdb_score):
+    try:
+        cur = conn.cursor()
+        cur.execute("INSERT INTO movies (title, filmweb_score, rotten_tomatoes_score, imdb_score) VALUES ('" + title + "', " + str(filmweb_score) + ", " + str(rotten_tomatoes_score) + ", " + str(imdb_score) + ")")
+        cur.close()
+        conn.commit()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+
 def select_database_version(conn):
     cur = conn.cursor()
     cur.execute('SELECT version()')
