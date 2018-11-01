@@ -51,7 +51,7 @@ button_transform.grid(row=1,column=1)
 button_load = Button(frame_ETL_buttons,text="Load",state=DISABLED,command=etl.load)
 button_load.grid(row=1,column=2)
 
-button_clean_data = Button(frame_ETL_buttons,text="Clean Data")
+button_clean_data = Button(frame_ETL_buttons,text="Clean Data",command=etl.clean_data)
 button_clean_data.grid(row=2,column=1)
 
 message_box = Label(main_window,textvariable=msg_box_value,font=("Helvetica", 12))

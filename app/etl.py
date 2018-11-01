@@ -29,7 +29,7 @@ if __name__ == '__main__':
     # movie = make_movie("Film", 23, 24, 34)
 
     # print(movie.title + str(movie.filmweb_score))
-
+    
     # close_database_connection(conn)
 
 reload(sys)
@@ -44,8 +44,10 @@ def ETL():
     load()
 
 def clean_data():
-    #todo
-    return
+    conn = connect_to_database_and_get_connection()
+    delete_all_movies(conn)
+    gui.print_msg_in_message_box("Data Erased")
+    close_database_connection(conn)
 
 def extract():
     page = get_page(get_filmweb_url_of(gui.input_movie_title.get()))
@@ -60,7 +62,6 @@ def extract():
 def transform():
     soup = html_content
     data_scrapping(soup)
-
     gui.button_load.config(state=NORMAL)
     gui.etl_bar_t.config(fg="red")
     gui.print_msg_in_message_box("Data Transformed")

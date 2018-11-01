@@ -76,3 +76,12 @@ def select_all_movies(conn):
     result = cur.fetchall()
     cur.close()
     return result
+
+def delete_all_movies(conn):
+    try:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM movies")
+        print "All data from movies table has been erased. TADA!"
+        conn.commit()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
