@@ -1,10 +1,12 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-import psycopg2
 from configparser import ConfigParser
- 
-def config(filename='database.ini', section='postgresql'):
+
+import psycopg2
+import os
+
+def config(filename, section='postgresql'):
     # create a parser
     parser = ConfigParser()
     # read config file
@@ -25,7 +27,10 @@ def connect_to_database_and_get_connection():
     """ Connect to the PostgreSQL database server """
     conn = None
     try:
-        params = config()
+        if os.path.isfile('database.ini'):
+            params = config('database.ini')
+        else:
+            params = config('app\database.ini')
  
         print('Connecting to the PostgreSQL database...')
         conn = psycopg2.connect(**params)
@@ -71,6 +76,3 @@ def select_all_movies(conn):
     result = cur.fetchall()
     cur.close()
     return result
-
-
-    
