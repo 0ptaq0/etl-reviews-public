@@ -58,6 +58,7 @@ def insert_movie(conn, title, filmweb_score, rotten_tomatoes_score, imdb_score):
     try:
         cur = conn.cursor()
         cur.execute("INSERT INTO movies (title, filmweb_score, rotten_tomatoes_score, imdb_score) VALUES ('" + title + "', " + str(filmweb_score) + ", " + str(rotten_tomatoes_score) + ", " + str(imdb_score) + ")")
+        print str(cur.rowcount) + " new movie score(s) was uploaded into database"
         cur.close()
         conn.commit()
     except (Exception, psycopg2.DatabaseError) as error:
@@ -81,7 +82,8 @@ def delete_all_movies(conn):
     try:
         cur = conn.cursor()
         cur.execute("DELETE FROM movies")
-        print "All data from movies table has been erased. TADA!"
+    
+        print "Operation DELETE erased " + str(cur.rowcount) + " record(s)"
         conn.commit()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)

@@ -1,10 +1,12 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
+import re
 from Tkinter import *
+
 import requests
 from bs4 import BeautifulSoup
-import re
+
 import gui
 from db_connection import *
 from movie import *
@@ -37,6 +39,7 @@ sys.setdefaultencoding('utf-8')
 
 html_content = ""
 movie = make_movie("", 0, 0, 0)
+movie_site = "filmweb"
 
 def ETL():
     extract()
