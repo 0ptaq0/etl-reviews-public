@@ -1,10 +1,12 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-import psycopg2
 from configparser import ConfigParser
- 
-def config(filename='database.ini', section='postgresql'):
+
+import psycopg2
+import os
+
+def config(filename, section='postgresql'):
     # create a parser
     parser = ConfigParser()
     # read config file
@@ -25,7 +27,10 @@ def connect_to_database_and_get_connection():
     """ Connect to the PostgreSQL database server """
     conn = None
     try:
-        params = config()
+        if os.path.isfile('database.ini'):
+            params = config('database.ini')
+        else:
+            params = config('app\database.ini')
  
         print('Connecting to the PostgreSQL database...')
         conn = psycopg2.connect(**params)
@@ -53,6 +58,7 @@ def insert_movie(conn, title, filmweb_score, rotten_tomatoes_score, imdb_score):
     try:
         cur = conn.cursor()
         cur.execute("INSERT INTO movies (title, filmweb_score, rotten_tomatoes_score, imdb_score) VALUES ('" + title + "', " + str(filmweb_score) + ", " + str(rotten_tomatoes_score) + ", " + str(imdb_score) + ")")
+        print str(cur.rowcount) + " new movie score(s) was uploaded into database"
         cur.close()
         conn.commit()
     except (Exception, psycopg2.DatabaseError) as error:
@@ -72,5 +78,12 @@ def select_all_movies(conn):
     cur.close()
     return result
 
-
+def delete_all_movies(conn):
+    try:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM movies")
     
+        print "Operation DELETE erased " + str(cur.rowcount) + " record(s)"
+        conn.commit()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
