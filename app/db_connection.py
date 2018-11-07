@@ -102,7 +102,17 @@ def delete_all_movies(conn):
         cur = conn.cursor()
         cur.execute("DELETE FROM movies")
     
-        print "Operation DELETE erased " + str(cur.rowcount) + " record(s)"
+        print "Operation DELETE movies erased " + str(cur.rowcount) + " record(s)"
+        conn.commit()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+
+def delete_all_reviews(conn):
+    try:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM reviews")
+    
+        print "Operation DELETE reviews erased " + str(cur.rowcount) + " record(s)"
         conn.commit()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)

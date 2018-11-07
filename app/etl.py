@@ -14,7 +14,6 @@ from review import*
 
 if __name__ == '__main__':
     # code for testing below
-    print("Program started")
 
     # conn = connect_to_database_and_get_connection()
 
@@ -58,6 +57,7 @@ def ETL():
 def clean_data():
     conn = connect_to_database_and_get_connection()
     delete_all_movies(conn)
+    delete_all_reviews(conn)
     gui.print_msg_in_message_box("Data Erased")
     close_database_connection(conn)
 
