@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     # conn = connect_to_database_and_get_connection()
 
-    # create_table(conn)
+    # create_tables(conn)
 
     # #test get database version
     # db_verion = select_database_version(conn)
@@ -28,9 +28,12 @@ if __name__ == '__main__':
     # movies = select_all_movies(conn)
     # print(movies)
 
-    # insert_movie(conn)
+    # movie = make_movie("AAA", 33)
+    # review = make_review(2, "tes", "sdfsdfsdfsdfsdg", "Ja", 43)
 
-    # movie = make_movie("Film", 23, 24, 34)
+    # print(insert_review(conn, review))
+
+    # print(insert_movie(conn, movie))
 
     # print(movie.title + str(movie.filmweb_score))
     
@@ -40,7 +43,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 movie_html_content = ""
-movie = make_movie("", 0, 0, 0)
+movie = make_movie("", 0)
 movie_site = "filmweb"
 reviews_list_html = []
 reviews_list_content = []
@@ -78,15 +81,15 @@ def extract():
 def transform():
     soup = movie_html_content
     global movie
-    moview = scrap_movie_from_filmweb(soup)
+    movie = scrap_movie_from_filmweb(soup)
 
     scrap_reviews()
     
-    for review in reviews_list:
-        print (review.rev_title)
+    # for review in reviews_list:
+    #     print (review.rev_title)
         # print (review.content)
-        print (review.author)
-        print (review.review_rating)
+        # print (review.author)
+        # print (review.review_rating)
 
     gui.button_load.config(state=NORMAL)
     gui.etl_bar_t.config(fg="red")
@@ -94,7 +97,10 @@ def transform():
 
 def load():
     conn = connect_to_database_and_get_connection()
-    insert_movie(conn, movie.title, movie.filmweb_score, movie.rotten_tomatoes_score, movie.imdb_score)
+    print(movie.title)
+    movie_id = insert_movie(conn, movie)
+    for review in reviews_list:
+        insert_review(conn, review, movie_id)
     close_database_connection(conn)
 
     gui.etl_bar_l.config(fg="red")
@@ -121,7 +127,7 @@ def scrap_movie_from_filmweb(soup):
     movie_score_box = soup.find("span", attrs={"itemprop": "ratingValue"})
     movie_score = int(float(movie_score_box.text.strip().replace(",","."))*10)
 
-    movie = make_movie(movie_title, movie_score, 0, 0)
+    movie = make_movie(movie_title, movie_score)
     return movie
 
 def get_reviews_for_movie():
