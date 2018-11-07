@@ -3,13 +3,19 @@
 
 class Review(object):
     film_id = 0
-    review_content = ""
+    rev_title = ""
+    content = ""
+    author = ""
+    review_rating = 0
 
     # The class "constructor" - It's actually an initializer 
-    def __init__(self, film_id, review_content):
+    def __init__(self, film_id, rev_title,  content, author, review_rating):
         self.film_id = film_id
-        self.review_content = review_content
+        self.rev_title = rev_title
+        self.content = content
+        self.author = author
+        self.review_rating = review_rating
 
-def make_review(film_id, review_content):
-    review = Review(film_id, review_content)
+def make_review(film_id, rev_title, content, author, review_rating):
+    review = Review(film_id, rev_title, content, author, review_rating)
     return review

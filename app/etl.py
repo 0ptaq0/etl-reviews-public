@@ -81,10 +81,12 @@ def transform():
     moview = scrap_movie_from_filmweb(soup)
 
     scrap_reviews()
-    global reviews_list
-    for review_content in reviews_list_content:
-        review = make_review(0, review_content)
-        reviews_list.append(review)
+    
+    for review in reviews_list:
+        print (review.rev_title)
+        # print (review.content)
+        print (review.author)
+        print (review.review_rating)
 
     gui.button_load.config(state=NORMAL)
     gui.etl_bar_t.config(fg="red")
@@ -126,20 +128,31 @@ def get_reviews_for_movie():
     page = get_page(movie_main_url + "/reviews")
     soup = BeautifulSoup(page.content, 'html.parser')
 
-    reviews = soup.find("ul", {"class": "reviewsList"})
-    return reviews.findAll("li", {"class": "hoverOpacity"})
+    reviews = soup.find("div", {"class": "allReviews"})
+    top_reviews = reviews.findAll("a", {"class": "l"})
+    rest_of_the_reviews = reviews.findAll("a", {"class": "normal"})
+    all_reviews = top_reviews
+    all_reviews.extend(rest_of_the_reviews)
+    return all_reviews
     
 def scrap_reviews():
-    global reviews_list_content
+    global reviews_list       
     for review in reviews_list_html:
-        a = review.find("a", {"class": "l"})
-        result = re.search('href=\"(.*)\">', str(a))
+        result = re.search('href=\"(.*)\">', str(review))
         url = "https://www.filmweb.pl" + result.group(1)
         review_page = get_page(url)
         review_soup = BeautifulSoup(review_page.content, 'html.parser')
         review_content_html = review_soup.find("div", attrs={"itemprop": "reviewBody"}).text
         review_content = BeautifulSoup(review_content_html, "lxml").text
-        reviews_list_content.append(review_content)
+
+        rev_title = review_soup.find("h2", attrs={"itemprop": "name"}).text
+
+        author = review_soup.find("div", attrs={"itemprop": "author"}).text
+
+        review_rating = review_soup.find("span", {"class": "reviewRatingPercent"}).text[:-1]
+
+        review = make_review(0, rev_title, review_content, author, review_rating)
+        reviews_list.append(review)
         
 def get_page(url):
     page = requests.get(url)
