@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 import gui
 from db_connection import *
 from movie import *
+from review import*
 
 if __name__ == '__main__':
     # code for testing below
@@ -38,10 +39,12 @@ if __name__ == '__main__':
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-html_content = ""
+movie_html_content = ""
 movie = make_movie("", 0, 0, 0)
 movie_site = "filmweb"
-reviews_html_content = []
+reviews_list_html = []
+reviews_list_content = []
+reviews_list = []
 movie_main_url = ""
 
 def ETL():
@@ -61,24 +64,33 @@ def extract():
     page = get_page(movie_main_url)
 
     soup = BeautifulSoup(page.content, 'html.parser')
-    global html_content
-    html_content = soup
+    global movie_html_content
+    movie_html_content = soup
+
+    global reviews_list_html
+    reviews_list_html = get_reviews_for_movie()
 
     gui.button_transform.config(state=NORMAL)
     gui.etl_bar_e.config(fg="red")
     gui.print_msg_in_message_box("Data Extracted")
 
-    scrap_reviews()
 
 def transform():
-    soup = html_content
-    scrap_movie_from_filmweb(soup)
+    soup = movie_html_content
+    global movie
+    moview = scrap_movie_from_filmweb(soup)
+
+    scrap_reviews()
+    global reviews_list
+    for review_content in reviews_list_content:
+        review = make_review(0, review_content)
+        reviews_list.append(review)
+
     gui.button_load.config(state=NORMAL)
     gui.etl_bar_t.config(fg="red")
     gui.print_msg_in_message_box("Data Transformed")
 
 def load():
-    global movie
     conn = connect_to_database_and_get_connection()
     insert_movie(conn, movie.title, movie.filmweb_score, movie.rotten_tomatoes_score, movie.imdb_score)
     close_database_connection(conn)
@@ -107,17 +119,19 @@ def scrap_movie_from_filmweb(soup):
     movie_score_box = soup.find("span", attrs={"itemprop": "ratingValue"})
     movie_score = int(float(movie_score_box.text.strip().replace(",","."))*10)
 
-    global movie
     movie = make_movie(movie_title, movie_score, 0, 0)
-    print(movie.title + ": " + str(movie.filmweb_score))
-    
-def scrap_reviews():
+    return movie
+
+def get_reviews_for_movie():
     page = get_page(movie_main_url + "/reviews")
     soup = BeautifulSoup(page.content, 'html.parser')
 
-    reviewsList = soup.find("ul", {"class": "reviewsList"})
-    reviews = reviewsList.findAll("li", {"class": "hoverOpacity"})
-    for review in reviews:
+    reviews = soup.find("ul", {"class": "reviewsList"})
+    return reviews.findAll("li", {"class": "hoverOpacity"})
+    
+def scrap_reviews():
+    global reviews_list_content
+    for review in reviews_list_html:
         a = review.find("a", {"class": "l"})
         result = re.search('href=\"(.*)\">', str(a))
         url = "https://www.filmweb.pl" + result.group(1)
@@ -125,9 +139,8 @@ def scrap_reviews():
         review_soup = BeautifulSoup(review_page.content, 'html.parser')
         review_content_html = review_soup.find("div", attrs={"itemprop": "reviewBody"}).text
         review_content = BeautifulSoup(review_content_html, "lxml").text
-        print(review_content)
+        reviews_list_content.append(review_content)
         
-
 def get_page(url):
     page = requests.get(url)
     return page
