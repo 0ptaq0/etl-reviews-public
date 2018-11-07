@@ -91,10 +91,23 @@ def select_database_version(conn):
     return result
 
 def select_all_movies(conn):
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM movies")
-    result = cur.fetchall()
-    cur.close()
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM movies")
+        result = cur.fetchall()
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    return result
+
+def select_all_reviews(conn):
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM reviews")
+        result = cur.fetchall()
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
     return result
 
 def delete_all_movies(conn):
@@ -104,6 +117,7 @@ def delete_all_movies(conn):
     
         print "Operation DELETE movies erased " + str(cur.rowcount) + " record(s)"
         conn.commit()
+        cur.close()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
 
@@ -114,5 +128,6 @@ def delete_all_reviews(conn):
     
         print "Operation DELETE reviews erased " + str(cur.rowcount) + " record(s)"
         conn.commit()
+        cur.close()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)

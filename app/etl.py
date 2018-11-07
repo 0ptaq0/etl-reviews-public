@@ -14,6 +14,7 @@ from review import*
 
 if __name__ == '__main__':
     # code for testing below
+    print("main")
 
     # conn = connect_to_database_and_get_connection()
 
@@ -62,6 +63,10 @@ def clean_data():
     close_database_connection(conn)
 
 def extract():
+    if gui.input_movie_title.get() == "":
+        gui.print_msg_in_message_box("Please type a movie title in the input field above.")
+        return
+
     global movie_main_url
     movie_main_url = get_filmweb_url_of(gui.input_movie_title.get())
     page = get_page(movie_main_url)
@@ -75,7 +80,7 @@ def extract():
 
     gui.button_transform.config(state=NORMAL)
     gui.etl_bar_e.config(fg="red")
-    gui.print_msg_in_message_box("Data Extracted")
+    gui.print_msg_in_message_box("Data Extracted. \n" + str(len(reviews_list_html)) + " reviews found. ")
 
 
 def transform():
@@ -84,16 +89,10 @@ def transform():
     movie = scrap_movie_from_filmweb(soup)
 
     scrap_reviews()
-    
-    # for review in reviews_list:
-    #     print (review.rev_title)
-        # print (review.content)
-        # print (review.author)
-        # print (review.review_rating)
 
     gui.button_load.config(state=NORMAL)
     gui.etl_bar_t.config(fg="red")
-    gui.print_msg_in_message_box("Data Transformed")
+    gui.print_msg_in_message_box("Data Transformed. \n " + movie.title + " - users rating: " + str(movie.filmweb_score)[:-1] + "." + str(movie.filmweb_score)[:1])
 
 def load():
     conn = connect_to_database_and_get_connection()
@@ -135,10 +134,12 @@ def get_reviews_for_movie():
     soup = BeautifulSoup(page.content, 'html.parser')
 
     reviews = soup.find("div", {"class": "allReviews"})
-    top_reviews = reviews.findAll("a", {"class": "l"})
-    rest_of_the_reviews = reviews.findAll("a", {"class": "normal"})
-    all_reviews = top_reviews
-    all_reviews.extend(rest_of_the_reviews)
+    all_reviews = ""
+    if reviews != None:
+        top_reviews = reviews.findAll("a", {"class": "l"})
+        rest_of_the_reviews = reviews.findAll("a", {"class": "normal"})
+        all_reviews = top_reviews
+        all_reviews.extend(rest_of_the_reviews)
     return all_reviews
     
 def scrap_reviews():
