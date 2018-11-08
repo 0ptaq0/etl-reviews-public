@@ -5,6 +5,7 @@ from configparser import ConfigParser
 
 import psycopg2
 import os
+import psycopg2.extras
 
 def config(filename, section='postgresql'):
     # create a parser
@@ -94,21 +95,28 @@ def select_all_movies(conn):
     try:
         cur = conn.cursor()
         cur.execute("SELECT * FROM movies")
-        result = cur.fetchall()
+        desc = cur.description
+        column_names = [col[0] for col in desc]
+        result = [dict(itertools.izip(column_names, row))  
+            for row in cur.fetchall()]
         cur.close()
+        print(result[1])
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     return result
 
 def select_all_reviews(conn):
     try:
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM reviews")
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute("SELECT * FROM reviews LEFT JOIN movies ON reviews.movie_id = movies.id")
         result = cur.fetchall()
         cur.close()
+        dict_result = []
+        for row in result:
+            dict_result.append(dict(row))
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-    return result
+    return dict_result
 
 def delete_all_movies(conn):
     try:
