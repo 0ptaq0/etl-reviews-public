@@ -110,6 +110,7 @@ def load():
 
     gui.etl_bar_l.config(fg="red")
     gui.print_msg_in_message_box("Data Loaded")
+    del reviews_list[:]
 
 def get_filmweb_url_of(movie_title):
     page = get_page(("https://www.filmweb.pl/search?q=" + movie_title))
@@ -199,6 +200,7 @@ def create_data_table():
     tree.heading("rev_title", text="Review title")
     tree.heading("author", text="Author")
     tree.heading("rev_rating", text="Review rating")
+
 
     conn = connect_to_database_and_get_connection()
     reviews_list_dict = select_all_reviews(conn)
