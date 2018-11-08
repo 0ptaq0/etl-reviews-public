@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import re
+from ttk import *
 from Tkinter import *
 
 import requests
@@ -10,7 +11,7 @@ from bs4 import BeautifulSoup
 import gui
 from db_connection import *
 from movie import *
-from review import*
+from review import *
 
 if __name__ == '__main__':
     # code for testing below
@@ -27,6 +28,9 @@ if __name__ == '__main__':
     # #test get data from movies
     # movies = select_all_movies(conn)
     # print(movies)
+
+    # dict_res = select_all_reviews(conn)
+    # print(dict_res[0].get("author"))
 
     # movie = make_movie("AAA", 33)
     # review = make_review(2, "tes", "sdfsdfsdfsdfsdg", "Ja", 43)
@@ -164,3 +168,39 @@ def scrap_reviews():
 def get_page(url):
     page = requests.get(url)
     return page
+
+def create_data_table():
+    data_window = Tk()
+    data_window.title("Reviews")
+    data_window.minsize(width=440, height=220)
+
+    tree = Treeview(data_window, selectmode='browse')
+    tree.place(x=0, y=0)
+
+    vsb = Scrollbar(data_window, orient="vertical", command=tree.yview)
+    vsb.place(x=420+2, y=0, height=200+20)
+
+    tree.configure(yscrollcommand=vsb.set)
+
+    tree["columns"] = ("id", "movie", "author", "rev_rating")
+    tree['show'] = 'headings'
+    tree.column("id", width=100, anchor='c')
+    tree.column("movie", width=100, anchor='c')
+    tree.column("author", width=100, anchor='c')
+    tree.column("rev_rating", width=120, anchor='c')
+
+    tree.heading("id", text="ID")
+    tree.heading("movie", text="Movie")
+    tree.heading("author", text="Author")
+    tree.heading("rev_rating", text="Review rating")
+
+    conn = connect_to_database_and_get_connection()
+    reviews_list_dict = select_all_reviews(conn)
+    close_database_connection(conn)
+
+    counter=0
+    for review_dict in reviews_list_dict:
+        counter+=1
+        tree.insert("",'end',text="L1",values=(counter, review_dict.get("title"), review_dict.get("rev_title"), review_dict.get("author"), review_dict.get("review_rating")))
+
+
