@@ -95,10 +95,7 @@ def select_all_movies(conn):
     try:
         cur = conn.cursor()
         cur.execute("SELECT * FROM movies")
-        desc = cur.description
-        column_names = [col[0] for col in desc]
-        result = [dict(itertools.izip(column_names, row))  
-            for row in cur.fetchall()]
+        result = cur.fetchall()
         cur.close()
         print(result[1])
     except (Exception, psycopg2.DatabaseError) as error:
