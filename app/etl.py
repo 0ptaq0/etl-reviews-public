@@ -16,7 +16,7 @@ from review import *
 if __name__ == '__main__':
     # code for testing below
     print("main")
-
+    
     # conn = connect_to_database_and_get_connection()
 
     # create_tables(conn)
@@ -30,6 +30,7 @@ if __name__ == '__main__':
     # print(movies)
 
     # dict_res = select_all_reviews(conn)
+    # print dict_res
     # print(dict_res[0].get("author"))
 
     # movie = make_movie("AAA", 33)
@@ -42,6 +43,7 @@ if __name__ == '__main__':
     # print(movie.title + str(movie.filmweb_score))
     
     # close_database_connection(conn)
+
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -172,25 +174,29 @@ def get_page(url):
 def create_data_table():
     data_window = Tk()
     data_window.title("Reviews")
-    data_window.minsize(width=440, height=220)
+    data_window.grid_rowconfigure(1,weight=1)
+    data_window.grid_columnconfigure(0,weight=1)
+    data_window.config(background="lavender")
 
     tree = Treeview(data_window, selectmode='browse')
     tree.place(x=0, y=0)
 
     vsb = Scrollbar(data_window, orient="vertical", command=tree.yview)
-    vsb.place(x=420+2, y=0, height=200+20)
+    vsb.grid(row=1, column=1, sticky='ns')
 
     tree.configure(yscrollcommand=vsb.set)
-
-    tree["columns"] = ("id", "movie", "author", "rev_rating")
+    tree.grid(row=1,column=0,sticky='nsew')
+    tree["columns"] = ("id", "movie", "rev_title", "author", "rev_rating")
     tree['show'] = 'headings'
-    tree.column("id", width=100, anchor='c')
-    tree.column("movie", width=100, anchor='c')
-    tree.column("author", width=100, anchor='c')
-    tree.column("rev_rating", width=120, anchor='c')
+    tree.column("id",  anchor='c', stretch=YES)
+    tree.column("movie", anchor='c', stretch=YES)
+    tree.column("rev_title",  anchor='c', stretch=YES)
+    tree.column("author",  anchor='c', stretch=YES)
+    tree.column("rev_rating", anchor='c', stretch=YES)
 
     tree.heading("id", text="ID")
     tree.heading("movie", text="Movie")
+    tree.heading("rev_title", text="Review title")
     tree.heading("author", text="Author")
     tree.heading("rev_rating", text="Review rating")
 
@@ -202,5 +208,3 @@ def create_data_table():
     for review_dict in reviews_list_dict:
         counter+=1
         tree.insert("",'end',text="L1",values=(counter, review_dict.get("title"), review_dict.get("rev_title"), review_dict.get("author"), review_dict.get("review_rating")))
-
-
