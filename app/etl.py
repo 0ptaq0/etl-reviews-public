@@ -13,36 +13,6 @@ from db_connection import *
 from movie import *
 from review import *
 
-if __name__ == '__main__':
-    # code for testing below
-    print("main")
-
-    # conn = connect_to_database_and_get_connection()
-
-    # create_tables(conn)
-
-    # #test get database version
-    # db_verion = select_database_version(conn)
-    # print(db_verion)
-
-    # #test get data from movies
-    # movies = select_all_movies(conn)
-    # print(movies)
-
-    # dict_res = select_all_reviews(conn)
-    # print(dict_res[0].get("author"))
-
-    # movie = make_movie("AAA", 33)
-    # review = make_review(2, "tes", "sdfsdfsdfsdfsdg", "Ja", 43)
-
-    # print(insert_review(conn, review))
-
-    # print(insert_movie(conn, movie))
-
-    # print(movie.title + str(movie.filmweb_score))
-    
-    # close_database_connection(conn)
-
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -108,6 +78,7 @@ def load():
 
     gui.etl_bar_l.config(fg="red")
     gui.print_msg_in_message_box("Data Loaded")
+    del reviews_list[:]
 
 def get_filmweb_url_of(movie_title):
     page = get_page(("https://www.filmweb.pl/search?q=" + movie_title))
@@ -169,38 +140,110 @@ def get_page(url):
     page = requests.get(url)
     return page
 
-def create_data_table():
-    data_window = Tk()
-    data_window.title("Reviews")
-    data_window.minsize(width=440, height=220)
 
-    tree = Treeview(data_window, selectmode='browse')
-    tree.place(x=0, y=0)
+class Application():
+    def __init__(self,master):
+        self.master = master
+        self.tree = Treeview(self.master, selectmode='browse')
+        self.tree.place(x=0, y=0)
+        self.vsb = Scrollbar(self.master, orient="vertical", command=self.tree.yview)
+        self.vsb.grid(row=1, column=1, sticky='ns')
 
-    vsb = Scrollbar(data_window, orient="vertical", command=tree.yview)
-    vsb.place(x=420+2, y=0, height=200+20)
+        self.searchfield = Treeview(self.master)
+        self.searchfield.grid(row=0, column=0, sticky='n')
+        self.search_var = StringVar()
+        self.search_var.trace("w", lambda name, index, mode: self.selected)
+        self.entry = Entry(self.searchfield, textvariable=self.search_var, width=45)
+        self.entry.grid(row=0, column=0)
 
-    tree.configure(yscrollcommand=vsb.set)
+        self.searchbtn = Button(self.searchfield, text='Search', command=self.selected) 
+        self.searchbtn.grid(row=0, column=1)
+        # self.treeFrame = Listbox(self.searchfield, width=45, height=45)
+        # self.treeFrame.grid(row=1, column=0, padx=10, pady=3)
+        self.tree.configure(yscrollcommand=self.vsb.set)
+        self.tree.grid(row=1,column=0,sticky='nsew')
+        self.tree["columns"] = ("id", "movie", "rev_title", "author", "rev_rating")
+        self.tree['show'] = 'headings'
+        self.tree.column("id",  anchor='c', stretch=YES)
+        self.tree.column("movie", anchor='c', stretch=YES)
+        self.tree.column("rev_title",  anchor='c', stretch=YES)
+        self.tree.column("author",  anchor='c', stretch=YES)
+        self.tree.column("rev_rating", anchor='c', stretch=YES)
 
-    tree["columns"] = ("id", "movie", "author", "rev_rating")
-    tree['show'] = 'headings'
-    tree.column("id", width=100, anchor='c')
-    tree.column("movie", width=100, anchor='c')
-    tree.column("author", width=100, anchor='c')
-    tree.column("rev_rating", width=120, anchor='c')
+        self.tree.heading("id", text="ID")
+        self.tree.heading("movie", text="Movie")
+        self.tree.heading("rev_title", text="Review title")
+        self.tree.heading("author", text="Author")
+        self.tree.heading("rev_rating", text="Review rating")
+    
+    def create_data_table(self):
+        conn = connect_to_database_and_get_connection()
+        reviews_list_dict = select_all_reviews(conn)
+        close_database_connection(conn)
+        counter=0
+        for review_dict in reviews_list_dict:
+            counter+=1
+            self.tree.insert("",'end',text="ID_" + str(counter),values=(counter, review_dict["title"], 
+                review_dict["rev_title"], review_dict["author"], 
+                review_dict["review_rating"]), 
+                tags=review_dict["title"])
+            
+        self.search_item = self.entry.get()
+        for review_dict in reviews_list_dict:
+            if review_dict["title"] == self.search_item:
+                self.selected(self.search_item)
 
-    tree.heading("id", text="ID")
-    tree.heading("movie", text="Movie")
-    tree.heading("author", text="Author")
-    tree.heading("rev_rating", text="Review rating")
+    def selected(self):
+        search_for = self.search_var.get()
+        iid_to_select = ()
 
-    conn = connect_to_database_and_get_connection()
-    reviews_list_dict = select_all_reviews(conn)
-    close_database_connection(conn)
+        #   if there's any sense in search
+        if search_for != '':
+            #   get all tags from tkinter
+            all_tags = self.master.tk.call(str(self.tree), "tag", "names")
 
-    counter=0
-    for review_dict in reviews_list_dict:
-        counter+=1
-        tree.insert("",'end',text="L1",values=(counter, review_dict.get("title"), review_dict.get("rev_title"), review_dict.get("author"), review_dict.get("review_rating")))
+            #   sort tags by search query
+            tags_to_select = tuple(filter(lambda tag: search_for.lower() in tag.lower(), all_tags))
+
+            #   gather iids by tags to select
+            for sorted_tag in tags_to_select:
+                iid_to_select += self.tree.tag_has(sorted_tag)
+
+        #   setting selection by iids
+        self.tree.selection_set(iid_to_select)
 
 
+if __name__ == '__main__':
+    # code for testing below
+    print("main")
+    
+    # conn = connect_to_database_and_get_connection()
+
+    # create_tables(conn)
+
+    # #test get database version
+    # db_verion = select_database_version(conn)
+    # print(db_verion)
+
+    # #test get data from movies
+    # movies = select_all_movies(conn)
+    # print(movies)
+
+    # dict_res = select_all_reviews(conn)
+    # print dict_res
+    # print(dict_res[0].get("author"))
+
+    # movie = make_movie("AAA", 33)
+    # review = make_review(2, "tes", "sdfsdfsdfsdfsdg", "Ja", 43)
+
+    # print(insert_review(conn, review))
+
+    # print(insert_movie(conn, movie))
+
+    # print(movie.title + str(movie.filmweb_score))
+    
+    # close_database_connection(conn)
+    # root = Tk()
+    # Application(root)
+    # root.mainloop()    
+ 
