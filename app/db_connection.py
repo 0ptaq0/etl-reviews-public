@@ -115,6 +115,20 @@ def select_all_reviews(conn):
         print(error)
     return dict_result
 
+def select_reviews_fiter_by_movie(conn, title):
+    try:
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        sql = "SELECT * FROM reviews LEFT JOIN movies ON reviews.movie_id = movies.id WHERE movies.title ILIKE '%" + title + "%'"
+        cur.execute(sql)
+        result = cur.fetchall()
+        cur.close()
+        dict_result = []
+        for row in result:
+            dict_result.append(dict(row))
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    return dict_result
+
 def delete_all_movies(conn):
     try:
         cur = conn.cursor()

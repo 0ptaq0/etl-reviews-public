@@ -23,6 +23,7 @@ reviews_list_html = []
 reviews_list_content = []
 reviews_list = []
 movie_main_url = ""
+reviews_list_dict = []
 
 def ETL():
     extract()
@@ -126,6 +127,8 @@ def scrap_reviews():
         review_soup = BeautifulSoup(review_page.content, 'html.parser')
         review_content_html = review_soup.find("div", attrs={"itemprop": "reviewBody"}).text
         review_content = BeautifulSoup(review_content_html, "lxml").text
+        index = review_content.index('waitingModule')
+        review_content = review_content[:index]
 
         rev_title = review_soup.find("h2", attrs={"itemprop": "name"}).text
 
@@ -152,11 +155,10 @@ class Application():
         self.searchfield = Treeview(self.master)
         self.searchfield.grid(row=0, column=0, sticky='n')
         self.search_var = StringVar()
-        self.search_var.trace("w", lambda name, index, mode: self.selected)
         self.entry = Entry(self.searchfield, textvariable=self.search_var, width=45)
         self.entry.grid(row=0, column=0)
 
-        self.searchbtn = Button(self.searchfield, text='Search', command=self.selected) 
+        self.searchbtn = Button(self.searchfield, text='Search', command=self.search) 
         self.searchbtn.grid(row=0, column=1)
         # self.treeFrame = Listbox(self.searchfield, width=45, height=45)
         # self.treeFrame.grid(row=1, column=0, padx=10, pady=3)
@@ -175,43 +177,51 @@ class Application():
         self.tree.heading("rev_title", text="Review title")
         self.tree.heading("author", text="Author")
         self.tree.heading("rev_rating", text="Review rating")
+
+        self.tree.bind('<ButtonRelease-1>', self.selectItem)
     
-    def create_data_table(self):
+    def create_data_table(self, search_for):
         conn = connect_to_database_and_get_connection()
-        reviews_list_dict = select_all_reviews(conn)
+        global reviews_list_dict
+        reviews_list_dict = select_reviews_fiter_by_movie(conn, search_for)
         close_database_connection(conn)
         counter=0
+        for i in self.tree.get_children():
+            self.tree.delete(i)
         for review_dict in reviews_list_dict:
             counter+=1
             self.tree.insert("",'end',text="ID_" + str(counter),values=(counter, review_dict["title"], 
                 review_dict["rev_title"], review_dict["author"], 
-                review_dict["review_rating"]), 
-                tags=review_dict["title"])
-            
-        self.search_item = self.entry.get()
-        for review_dict in reviews_list_dict:
-            if review_dict["title"] == self.search_item:
-                self.selected(self.search_item)
-
-    def selected(self):
+                review_dict["review_rating"]))
+    
+    def search(self):
         search_for = self.search_var.get()
-        iid_to_select = ()
+        self.create_data_table(search_for)
 
-        #   if there's any sense in search
-        if search_for != '':
-            #   get all tags from tkinter
-            all_tags = self.master.tk.call(str(self.tree), "tag", "names")
+    def selectItem(self, a):
+        curItem = self.tree.focus()
+        id = (self.tree.item(curItem)["text"])[3:]
 
-            #   sort tags by search query
-            tags_to_select = tuple(filter(lambda tag: search_for.lower() in tag.lower(), all_tags))
+        review = reviews_list_dict[(int(id)-1)]
+        review_window = Tk()
+        review_window.title("Review")
+        review_window.minsize(width=440, height=220)
 
-            #   gather iids by tags to select
-            for sorted_tag in tags_to_select:
-                iid_to_select += self.tree.tag_has(sorted_tag)
+        label_review_title = Label(review_window,text=review["rev_title"], font=("Helvetica", 24))
+        label_review_title.pack()
 
-        #   setting selection by iids
-        self.tree.selection_set(iid_to_select)
+        label_review_author = Label(review_window,text="Author: " + review["author"], font=("Helvetica", 12))
+        label_review_author.pack()
 
+        label_review_movie = Label(review_window,text="Moview: " + review["title"], font=("Helvetica", 12))
+        label_review_movie.pack()
+
+        str_rev_rating = "This review was helpful for " + str(review["review_rating"]) + "% of users."
+        label_review_rev_reting = Label(review_window,text=str_rev_rating, font=("Helvetica", 10))
+        label_review_rev_reting.pack()
+
+        label_review_content = Label(review_window,text=review["content"], font=("Helvetica", 12), wraplength=1200, justify=LEFT)
+        label_review_content.pack()
 
 if __name__ == '__main__':
     # code for testing below

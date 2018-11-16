@@ -18,7 +18,6 @@ main_window = Tk()
 application = Application(main_window)
 main_window.title("ETL Movie Reviews")
 
-
 msg_box_value = StringVar(main_window,value="Info: ")
 
 frame_ETL_bar = Frame(main_window)
@@ -54,12 +53,8 @@ button_transform.grid(row=1,column=1, padx=10, pady=5)
 button_load = Button(frame_ETL_buttons,text="Load",state=DISABLED,command=etl.load)
 button_load.grid(row=1,column=2, padx=10, pady=5)
 
-
-button_explore_data = Button(frame_ETL_buttons,text="Explore Data", command=application.create_data_table)
-button_explore_data.grid(row=2,column=0, columnspan=2)
-
 button_clean_data = Button(frame_ETL_buttons,text="Clean Data",command=etl.clean_data)
-button_clean_data.grid(row=2,column=2, columnspan=2)
+button_clean_data.grid(row=2,column=1)
 
 message_box = Label(main_window,textvariable=msg_box_value,font=("Helvetica", 12))
 message_box.grid(row=5,pady=10)
