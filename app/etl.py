@@ -32,9 +32,10 @@ def ETL():
 
 def clean_data():
     conn = connect_to_database_and_get_connection()
-    delete_all_movies(conn)
-    delete_all_reviews(conn)
-    gui.print_msg_in_message_box("Data Erased")
+    number_of_erased_movies_from_db = delete_all_movies(conn)
+    number_of_erased_movie_reviews_from_db = delete_all_reviews(conn)
+    gui.print_msg_in_message_box("Data Erased. \n " + number_of_erased_movies_from_db + " movie score records were erased. \n " 
+        + number_of_erased_movie_reviews_from_db + " movie review records were erased.")
     close_database_connection(conn)
 
 def extract():
@@ -78,7 +79,7 @@ def load():
     close_database_connection(conn)
 
     gui.etl_bar_l.config(fg="red")
-    gui.print_msg_in_message_box("Data Loaded")
+    gui.print_msg_in_message_box("Data Loaded. \n " + str(len(reviews_list)) + " new movie review(s) uploaded into database.")
     del reviews_list[:]
 
 def get_filmweb_url_of(movie_title):
