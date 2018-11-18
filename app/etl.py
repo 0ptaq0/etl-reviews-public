@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import re
+import unicodecsv as csv
 from ttk import *
 from Tkinter import *
 
@@ -12,6 +13,7 @@ import gui
 from db_connection import *
 from movie import *
 from review import *
+
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -144,6 +146,18 @@ def get_page(url):
     page = requests.get(url)
     return page
 
+def extract_db_to_csv():
+    conn = connect_to_database_and_get_connection()
+    dict_with_data = select_all_reviews(conn)
+    close_database_connection(conn)
+    keys = dict_with_data[0].keys()
+    if not os.path.exists('temp'):
+        os.makedirs('temp')
+    with open('temp/movie_reviews_output.csv', 'wb') as output_file:
+        dict_writer = csv.DictWriter(output_file, keys)
+        dict_writer.writeheader()
+        dict_writer.writerows(dict_with_data)
+    gui.print_msg_in_message_box("Data saved in CSV.")
 
 class Application():
     def __init__(self,master):
