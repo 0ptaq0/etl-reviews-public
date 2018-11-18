@@ -5,6 +5,7 @@ import re
 import unicodecsv as csv
 from ttk import *
 from Tkinter import *
+import pprint
 
 import requests
 from bs4 import BeautifulSoup
@@ -213,6 +214,11 @@ class Application():
         search_for = self.search_var.get()
         self.create_data_table(search_for)
 
+    def export_review_to_txt(self, review):
+        with open('Review - ' + review["rev_title"] + '.txt', 'w') as file:
+            for key, value in review.items():
+                file.write("{}: {} \n".format(key, value))
+
     def selectItem(self, a):
         curItem = self.tree.focus()
         id = (self.tree.item(curItem)["text"])[3:]
@@ -234,6 +240,9 @@ class Application():
         str_rev_rating = "This review was helpful for " + str(review["review_rating"]) + "% of users."
         label_review_rev_reting = Label(review_window,text=str_rev_rating, font=("Helvetica", 10))
         label_review_rev_reting.pack()
+
+        export_to_text_button = Button(review_window, text="Export this review to text file", font=("Helvetica", 12), compound=CENTER, command=self.export_review_to_txt(review))
+        export_to_text_button.pack()
 
         label_review_content = Label(review_window,text=review["content"], font=("Helvetica", 12), wraplength=1200, justify=LEFT)
         label_review_content.pack()
