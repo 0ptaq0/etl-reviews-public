@@ -20,7 +20,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 movie_html_content = ""
-movie = make_movie("", 0)
+movie = make_movie("", "", 0)
 movie_site = "filmweb"
 reviews_list_html = []
 reviews_list_content = []
@@ -75,14 +75,14 @@ def transform():
 
 def load():
     conn = connect_to_database_and_get_connection()
-    print(movie.title)
     movie_id = insert_movie(conn, movie)
     for review in reviews_list:
         insert_review(conn, review, movie_id)
     close_database_connection(conn)
 
     gui.etl_bar_l.config(fg="red")
-    gui.print_msg_in_message_box("Data Loaded. \n " + str(len(reviews_list)) + " new movie review(s) uploaded into database.")
+    gui.button_transform.config(state=DISABLED)
+    gui.print_msg_in_message_box("Data Loaded. \n " + str(len(reviews_list)) + " new movie review(s) inserted or updated into database.")
     del reviews_list[:]
 
 def get_filmweb_url_of(movie_title):
@@ -106,7 +106,7 @@ def scrap_movie_from_filmweb(soup):
     movie_score_box = soup.find("span", attrs={"itemprop": "ratingValue"})
     movie_score = int(float(movie_score_box.text.strip().replace(",","."))*10)
 
-    movie = make_movie(movie_title, movie_score)
+    movie = make_movie(movie_title, movie_prod_year, movie_score)
     return movie
 
 def get_reviews_for_movie():
@@ -206,7 +206,7 @@ class Application():
             self.tree.delete(i)
         for review_dict in reviews_list_dict:
             counter+=1
-            self.tree.insert("",'end',text="ID_" + str(counter),values=(counter, review_dict["title"], 
+            self.tree.insert("",'end',text="ID_" + str(counter),values=(counter, (review_dict["title"] + " (" + review_dict["prod_year"] + ")"), 
                 review_dict["rev_title"], review_dict["author"], 
                 review_dict["review_rating"]))
     
@@ -215,7 +215,7 @@ class Application():
         self.create_data_table(search_for)
 
     def export_review_to_txt(self, review):
-        with open('Review - ' + review["rev_title"] + '.txt', 'w') as file:
+        with open('reviews/Review - ' + review["rev_title"] + '.txt', 'w') as file:
             for key, value in review.items():
                 file.write("{}: {} \n".format(key, value))
 

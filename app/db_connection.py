@@ -49,8 +49,8 @@ def close_database_connection(conn):
 def create_tables(conn):
     try:
         cur = conn.cursor()
-        cur.execute('CREATE TABLE movies (id serial primary key, title VARCHAR(40) not null, filmweb_score integer);')
-        cur.execute('CREATE TABLE reviews (id serial primary key, movie_id serial, rev_title VARCHAR(100) not null, content text, author varchar(40), review_rating integer);')
+        cur.execute('CREATE TABLE movies (id serial primary key, title VARCHAR(40) not null UNIQUE, prod_year VARCHAR(6), filmweb_score integer);')
+        cur.execute('CREATE TABLE reviews (id serial primary key, movie_id serial, rev_title VARCHAR(100) not null UNIQUE, content text, author varchar(40), review_rating integer);')
         cur.close()
         conn.commit()
     except (Exception, psycopg2.DatabaseError) as error:
@@ -59,8 +59,9 @@ def create_tables(conn):
 def insert_movie(conn, movie):
     try:
         cur = conn.cursor()
-        sql = "INSERT INTO movies (title, filmweb_score) VALUES (%s, %s)"
-        cur.execute(sql, (movie.title, movie.filmweb_score))
+        sql_update = "UPDATE SET filmweb_score = %s"
+        sql = "INSERT INTO movies (title, prod_year, filmweb_score) VALUES (%s, %s, %s) ON CONFLICT (title) DO " + sql_update
+        cur.execute(sql, (movie.title, movie.prod_year, movie.filmweb_score, movie.filmweb_score))
         conn.commit()
         cur.execute('SELECT LASTVAL()')
         id = cur.fetchone()[0]
@@ -72,8 +73,9 @@ def insert_movie(conn, movie):
 def insert_review(conn, review, movie_id):
     try:
         cur = conn.cursor()
-        sql = "INSERT INTO reviews (movie_id, rev_title, content, author, review_rating) VALUES (%s, %s, %s, %s, %s)"
-        cur.execute(sql, (movie_id, review.rev_title, review.content, review.author, review.review_rating))
+        sql_update = "UPDATE SET content = %s, author = %s, review_rating = %s"
+        sql = "INSERT INTO reviews (movie_id, rev_title, content, author, review_rating) VALUES (%s, %s, %s, %s, %s) ON CONFLICT (rev_title) DO " + sql_update
+        cur.execute(sql, (movie_id, review.rev_title, review.content, review.author, review.review_rating, review.content, review.author, review.review_rating))
         conn.commit()
         cur.execute('SELECT LASTVAL()')
         id = cur.fetchone()[0]
@@ -113,10 +115,10 @@ def select_all_reviews(conn):
         print(error)
     return dict_result
 
-def select_reviews_fiter_by_movie(conn, title):
+def select_reviews_fiter_by_movie(conn, string):
     try:
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        sql = "SELECT * FROM reviews LEFT JOIN movies ON reviews.movie_id = movies.id WHERE movies.title ILIKE '%" + title + "%'"
+        sql = "SELECT * FROM reviews LEFT JOIN movies ON reviews.movie_id = movies.id WHERE movies.title || movies.prod_year ILIKE '%" + string + "%'"
         cur.execute(sql)
         result = cur.fetchall()
         cur.close()
