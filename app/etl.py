@@ -2,8 +2,10 @@
 # -*- coding: UTF-8 -*-
 
 import re
+import unicodecsv as csv
 from ttk import *
 from Tkinter import *
+import pprint
 
 import requests
 from bs4 import BeautifulSoup
@@ -12,6 +14,7 @@ import gui
 from db_connection import *
 from movie import *
 from review import *
+
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -32,9 +35,10 @@ def ETL():
 
 def clean_data():
     conn = connect_to_database_and_get_connection()
-    delete_all_movies(conn)
-    delete_all_reviews(conn)
-    gui.print_msg_in_message_box("Data Erased")
+    number_of_erased_movies_from_db = delete_all_movies(conn)
+    number_of_erased_movie_reviews_from_db = delete_all_reviews(conn)
+    gui.print_msg_in_message_box("Data Erased. \n " + number_of_erased_movies_from_db + " movie score records were erased. \n " 
+        + number_of_erased_movie_reviews_from_db + " movie review records were erased.")
     close_database_connection(conn)
 
 def extract():
@@ -78,7 +82,7 @@ def load():
     close_database_connection(conn)
 
     gui.etl_bar_l.config(fg="red")
-    gui.print_msg_in_message_box("Data Loaded")
+    gui.print_msg_in_message_box("Data Loaded. \n " + str(len(reviews_list)) + " new movie review(s) uploaded into database.")
     del reviews_list[:]
 
 def get_filmweb_url_of(movie_title):
@@ -143,6 +147,18 @@ def get_page(url):
     page = requests.get(url)
     return page
 
+def extract_db_to_csv():
+    conn = connect_to_database_and_get_connection()
+    dict_with_data = select_all_reviews(conn)
+    close_database_connection(conn)
+    keys = dict_with_data[0].keys()
+    if not os.path.exists('temp'):
+        os.makedirs('temp')
+    with open('temp/movie_reviews_output.csv', 'wb') as output_file:
+        dict_writer = csv.DictWriter(output_file, keys)
+        dict_writer.writeheader()
+        dict_writer.writerows(dict_with_data)
+    gui.print_msg_in_message_box("Data saved in CSV.")
 
 class Application():
     def __init__(self,master):
@@ -198,6 +214,11 @@ class Application():
         search_for = self.search_var.get()
         self.create_data_table(search_for)
 
+    def export_review_to_txt(self, review):
+        with open('Review - ' + review["rev_title"] + '.txt', 'w') as file:
+            for key, value in review.items():
+                file.write("{}: {} \n".format(key, value))
+
     def selectItem(self, a):
         curItem = self.tree.focus()
         id = (self.tree.item(curItem)["text"])[3:]
@@ -219,6 +240,9 @@ class Application():
         str_rev_rating = "This review was helpful for " + str(review["review_rating"]) + "% of users."
         label_review_rev_reting = Label(review_window,text=str_rev_rating, font=("Helvetica", 10))
         label_review_rev_reting.pack()
+
+        export_to_text_button = Button(review_window, text="Export this review to text file", font=("Helvetica", 12), compound=CENTER, command=self.export_review_to_txt(review))
+        export_to_text_button.pack()
 
         label_review_content = Label(review_window,text=review["content"], font=("Helvetica", 12), wraplength=1200, justify=LEFT)
         label_review_content.pack()

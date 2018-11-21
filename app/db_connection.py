@@ -62,7 +62,6 @@ def insert_movie(conn, movie):
         sql = "INSERT INTO movies (title, filmweb_score) VALUES (%s, %s)"
         cur.execute(sql, (movie.title, movie.filmweb_score))
         conn.commit()
-        print str(cur.rowcount) + " new movie score(s) was uploaded into database"
         cur.execute('SELECT LASTVAL()')
         id = cur.fetchone()[0]
         cur.close()
@@ -76,7 +75,6 @@ def insert_review(conn, review, movie_id):
         sql = "INSERT INTO reviews (movie_id, rev_title, content, author, review_rating) VALUES (%s, %s, %s, %s, %s)"
         cur.execute(sql, (movie_id, review.rev_title, review.content, review.author, review.review_rating))
         conn.commit()
-        print str(cur.rowcount) + " new review score(s) was uploaded into database"
         cur.execute('SELECT LASTVAL()')
         id = cur.fetchone()[0]
         cur.close()
@@ -133,20 +131,22 @@ def delete_all_movies(conn):
     try:
         cur = conn.cursor()
         cur.execute("DELETE FROM movies")
-    
-        print "Operation DELETE movies erased " + str(cur.rowcount) + " record(s)"
+        number_of_erased_movies_from_db = str(cur.rowcount)
         conn.commit()
         cur.close()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
+    return number_of_erased_movies_from_db
+
 
 def delete_all_reviews(conn):
     try:
         cur = conn.cursor()
         cur.execute("DELETE FROM reviews")
     
-        print "Operation DELETE reviews erased " + str(cur.rowcount) + " record(s)"
+        number_of_erased_movie_reviews_from_db = str(cur.rowcount)
         conn.commit()
         cur.close()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
+    return number_of_erased_movie_reviews_from_db

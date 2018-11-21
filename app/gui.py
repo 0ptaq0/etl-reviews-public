@@ -56,6 +56,9 @@ button_load.grid(row=1,column=2, padx=10, pady=5)
 button_clean_data = Button(frame_ETL_buttons,text="Clean Data",command=etl.clean_data)
 button_clean_data.grid(row=2,column=1)
 
+button_extract_db_to_csv = Button(frame_ETL_buttons,text="Extract data to CSV",command=etl.extract_db_to_csv)
+button_extract_db_to_csv.grid(row=3,column=1)
+
 message_box = Label(main_window,textvariable=msg_box_value,font=("Helvetica", 12))
 message_box.grid(row=5,pady=10)
 
