@@ -76,13 +76,15 @@ def transform():
 def load():
     conn = connect_to_database_and_get_connection()
     movie_id = insert_movie(conn, movie)
+    count_revs_before = select_count_reviews_by_movie_id(conn, movie_id)
+    print str(count_revs_before)
     for review in reviews_list:
         insert_review(conn, review, movie_id)
     close_database_connection(conn)
 
     gui.etl_bar_l.config(fg="red")
     gui.button_transform.config(state=DISABLED)
-    gui.print_msg_in_message_box("Data Loaded. \n " + str(len(reviews_list)) + " new movie review(s) inserted or updated into database.")
+    gui.print_msg_in_message_box("Data Loaded. \n " + str(len(reviews_list)-count_revs_before) + " new movie review(s) inserted into database. " + str(count_revs_before) + " reviews updated.")
     del reviews_list[:]
 
 def get_filmweb_url_of(movie_title):
@@ -98,9 +100,9 @@ def scrap_movie_from_filmweb(soup):
     head = list(html.children)[0]
     body = list(html.children)[1]
 
-    movie_title = list(head.children)[2].get_text().split("(",1)[0]
+    movie_title = head.find("title").text.split("(",1)[0]
 
-    result = re.search('\((.*)\)', list(head.children)[2].get_text())
+    result = re.search('\((.*)\)', head.find("title").text)
     movie_prod_year = result.group(1)
 
     movie_score_box = soup.find("span", attrs={"itemprop": "ratingValue"})
@@ -140,7 +142,10 @@ def scrap_reviews():
 
         review_rating = review_soup.find("span", {"class": "reviewRatingPercent"}).text[:-1]
 
-        review = make_review(0, rev_title, review_content, author, review_rating)
+        result = re.search('\"(.*) ', review_soup.find("ul", {"class": "newsInfo"}).text)
+        pub_date = result.group(1)[:10]
+
+        review = make_review(0, rev_title, review_content, author, review_rating, pub_date)
         reviews_list.append(review)
         
 def get_page(url):
@@ -176,8 +181,11 @@ class Application():
 
         self.searchbtn = Button(self.searchfield, text='Search', command=self.search) 
         self.searchbtn.grid(row=0, column=1)
-        # self.treeFrame = Listbox(self.searchfield, width=45, height=45)
-        # self.treeFrame.grid(row=1, column=0, padx=10, pady=3)
+        
+        self.search_result_label = Label(self.searchfield,text="", font=("Helvetica", 12), fg="red")
+        self.search_result_label.grid(row=0,column=2)
+
+
         self.tree.configure(yscrollcommand=self.vsb.set)
         self.tree.grid(row=1,column=0,sticky='nsew')
         self.tree["columns"] = ("id", "movie", "rev_title", "author", "rev_rating")
@@ -209,13 +217,17 @@ class Application():
             self.tree.insert("",'end',text="ID_" + str(counter),values=(counter, (review_dict["title"] + " (" + review_dict["prod_year"] + ")"), 
                 review_dict["rev_title"], review_dict["author"], 
                 review_dict["review_rating"]))
+        
+        self.search_result_label.config(text=(str(counter) + " result(s) found."))
     
     def search(self):
         search_for = self.search_var.get()
         self.create_data_table(search_for)
 
     def export_review_to_txt(self, review):
-        with open('reviews/Review - ' + review["rev_title"] + '.txt', 'w') as file:
+        if not os.path.exists('temp'):
+            os.makedirs('temp')
+        with open('temp/Review - ' + review["rev_title"] + '.txt', 'w') as file:
             for key, value in review.items():
                 file.write("{}: {} \n".format(key, value))
 
@@ -231,10 +243,10 @@ class Application():
         label_review_title = Label(review_window,text=review["rev_title"], font=("Helvetica", 24))
         label_review_title.pack()
 
-        label_review_author = Label(review_window,text="Author: " + review["author"], font=("Helvetica", 12))
+        label_review_author = Label(review_window,text="Author: " + review["author"] + "  (" + review["pub_date"] + ")", font=("Helvetica", 12))
         label_review_author.pack()
 
-        label_review_movie = Label(review_window,text="Moview: " + review["title"], font=("Helvetica", 12))
+        label_review_movie = Label(review_window,text="Movie: " + review["title"] + "  (" + review["prod_year"] + ")", font=("Helvetica", 12))
         label_review_movie.pack()
 
         str_rev_rating = "This review was helpful for " + str(review["review_rating"]) + "% of users."
@@ -275,6 +287,8 @@ if __name__ == '__main__':
     # print(insert_movie(conn, movie))
 
     # print(movie.title + str(movie.filmweb_score))
+
+    # print str(select_count_reviews_by_movie_id(conn, 1))
     
     # close_database_connection(conn)
     # root = Tk()
