@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>gui.py</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>gui.py</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">Tkinter</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+
+<span class="kn">import</span> <span class="nn">etl</span>
+<span class="kn">from</span> <span class="nn">etl</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="nb">reload</span><span class="p">(</span><span class="n">sys</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">setdefaultencoding</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">print_msg_in_message_box</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+    <span class="n">msg_box_value</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;Info: &quot;</span> <span class="o">+</span> <span class="n">msg</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      <p>Use Tkinter library for front-end user experience</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">main_window</span> <span class="o">=</span> <span class="n">Tk</span><span class="p">()</span>
+<span class="n">application</span> <span class="o">=</span> <span class="n">Application</span><span class="p">(</span><span class="n">main_window</span><span class="p">)</span>
+<span class="n">main_window</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;ETL Movie Reviews&quot;</span><span class="p">)</span>
+
+<span class="n">msg_box_value</span> <span class="o">=</span> <span class="n">StringVar</span><span class="p">(</span><span class="n">main_window</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="s2">&quot;Info: &quot;</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      <p>Create label &ldquo;E T L that is indicator of data process&rdquo;</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">frame_ETL_bar</span> <span class="o">=</span> <span class="n">Frame</span><span class="p">(</span><span class="n">main_window</span><span class="p">)</span>
+<span class="n">frame_ETL_bar</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">etl_bar_e</span> <span class="o">=</span> <span class="n">Label</span><span class="p">(</span><span class="n">frame_ETL_bar</span><span class="p">,</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Helvetica&quot;</span><span class="p">,</span> <span class="mi">24</span><span class="p">))</span>
+<span class="n">etl_bar_e</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">etl_bar_t</span> <span class="o">=</span> <span class="n">Label</span><span class="p">(</span><span class="n">frame_ETL_bar</span><span class="p">,</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Helvetica&quot;</span><span class="p">,</span> <span class="mi">24</span><span class="p">))</span>
+<span class="n">etl_bar_t</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">etl_bar_l</span> <span class="o">=</span> <span class="n">Label</span><span class="p">(</span><span class="n">frame_ETL_bar</span><span class="p">,</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;L&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Helvetica&quot;</span><span class="p">,</span> <span class="mi">24</span><span class="p">))</span>
+<span class="n">etl_bar_l</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">column</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      <p>Create buttons and labels in main window</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">input_movie_title</span> <span class="o">=</span> <span class="n">Entry</span><span class="p">(</span><span class="n">main_window</span><span class="p">)</span>
+<span class="n">input_movie_title</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="n">frame_ETL_buttons</span> <span class="o">=</span> <span class="n">Frame</span><span class="p">(</span><span class="n">main_window</span><span class="p">)</span>
+<span class="n">frame_ETL_buttons</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+<span class="n">button_ETL</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">frame_ETL_buttons</span><span class="p">,</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;ETL&quot;</span><span class="p">,</span><span class="n">command</span><span class="o">=</span><span class="n">etl</span><span class="o">.</span><span class="n">ETL</span><span class="p">)</span>
+<span class="n">button_ETL</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">button_extract</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">frame_ETL_buttons</span><span class="p">,</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Extract&quot;</span><span class="p">,</span><span class="n">command</span><span class="o">=</span><span class="n">etl</span><span class="o">.</span><span class="n">extract</span><span class="p">)</span>
+<span class="n">button_extract</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="n">button_transform</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">frame_ETL_buttons</span><span class="p">,</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Transform&quot;</span><span class="p">,</span><span class="n">state</span><span class="o">=</span><span class="n">DISABLED</span><span class="p">,</span><span class="n">command</span><span class="o">=</span><span class="n">etl</span><span class="o">.</span><span class="n">transform</span><span class="p">)</span>
+<span class="n">button_transform</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="n">button_load</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">frame_ETL_buttons</span><span class="p">,</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Load&quot;</span><span class="p">,</span><span class="n">state</span><span class="o">=</span><span class="n">DISABLED</span><span class="p">,</span><span class="n">command</span><span class="o">=</span><span class="n">etl</span><span class="o">.</span><span class="n">load</span><span class="p">)</span>
+<span class="n">button_load</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">column</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="n">button_clean_data</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">frame_ETL_buttons</span><span class="p">,</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Clean Data&quot;</span><span class="p">,</span><span class="n">command</span><span class="o">=</span><span class="n">etl</span><span class="o">.</span><span class="n">clean_data</span><span class="p">)</span>
+<span class="n">button_clean_data</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">button_extract_db_to_csv</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">frame_ETL_buttons</span><span class="p">,</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Extract data to CSV&quot;</span><span class="p">,</span><span class="n">command</span><span class="o">=</span><span class="n">etl</span><span class="o">.</span><span class="n">extract_db_to_csv</span><span class="p">)</span>
+<span class="n">button_extract_db_to_csv</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-5'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-5'>#</a>
+      </div>
+      <p>Message for showing status of last performed action with related statistics.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">message_box</span> <span class="o">=</span> <span class="n">Label</span><span class="p">(</span><span class="n">main_window</span><span class="p">,</span><span class="n">textvariable</span><span class="o">=</span><span class="n">msg_box_value</span><span class="p">,</span><span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Helvetica&quot;</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+<span class="n">message_box</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span><span class="n">pady</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="n">main_window</span><span class="o">.</span><span class="n">mainloop</span><span class="p">()</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>
