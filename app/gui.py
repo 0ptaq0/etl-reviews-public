@@ -1,10 +1,12 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
+import re
 from Tkinter import *
+
 import requests
 from bs4 import BeautifulSoup
-import re
+
 import etl
 from etl import *
 
@@ -14,12 +16,14 @@ sys.setdefaultencoding('utf-8')
 def print_msg_in_message_box(msg):
     msg_box_value.set("Info: " + msg)
 
+# Use Tkinter library for front-end user experience
 main_window = Tk()
 application = Application(main_window)
 main_window.title("ETL Movie Reviews")
 
 msg_box_value = StringVar(main_window,value="Info: ")
 
+# Create label "E T L that is indicator of data process"
 frame_ETL_bar = Frame(main_window)
 frame_ETL_bar.grid(row=2)
 
@@ -32,9 +36,7 @@ etl_bar_t.grid(row=2,column=1)
 etl_bar_l = Label(frame_ETL_bar,text="L", font=("Helvetica", 24))
 etl_bar_l.grid(row=2,column=2)
 
-# title_bar = Label(main_window,text="movie Reviews", font=("Helvetica", 12))
-# title_bar.grid(row=1)
-
+# Create buttons and labels in main window
 input_movie_title = Entry(main_window)
 input_movie_title.grid(row=3)
 
@@ -59,13 +61,8 @@ button_clean_data.grid(row=2,column=1)
 button_extract_db_to_csv = Button(frame_ETL_buttons,text="Extract data to CSV",command=etl.extract_db_to_csv)
 button_extract_db_to_csv.grid(row=3,column=1)
 
+# Message for showing status of last performed action with related statistics.
 message_box = Label(main_window,textvariable=msg_box_value,font=("Helvetica", 12))
 message_box.grid(row=5,pady=10)
-
-i = 0
-while i < 10:
-    main_window.rowconfigure(i, weight=2)
-    main_window.columnconfigure(i,weight=2)
-    i += 1
 
 main_window.mainloop()
