@@ -1,7 +1,7 @@
 # etl-reviews :clapper:
 Phyton application to download and storage film reviews from web services.
 
-## Installation :shit:
+## Installation
 
 Make sure you have installed Python 2.7 on your PC (best 2.7.13 x64)
 If you have troubles with installing pip please visit https://pip.pypa.io/en/stable/installing/#do-i-need-to-install-pip
@@ -18,7 +18,7 @@ pip install -r requirements.txt
 Now you are ready to run the program
 
 
-## User guide :green_heart:
+## User guide
 ### Run a program
 Go to app folder, open command line and type
 ```
