@@ -15,6 +15,21 @@ open etl-reviews folder, then open command line again and type
 ```
 pip install -r requirements.txt
 ```
+Next thing you have to do is database table creation:
+In etl.py file, in __main__ section uncomment everything what is between:
+```
+"# # # code below is for first launch of the program and testing purpose
+    # # First Launch"
+```
+and
+```
+"# # Testing purpose"
+```
+then run open command line, type
+```
+python etl.py
+```
+and close it
 Now you are ready to run the program
 
 
